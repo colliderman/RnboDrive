@@ -9,12 +9,13 @@
 #pragma once
 
 #include <JuceHeader.h>
-//#include "RNBO.h"
+#include "RNBO.h"
 
 //==============================================================================
 /**
 */
-class RnboDriveAudioProcessor  : public juce::AudioProcessor
+class RnboDriveAudioProcessor  : public juce::AudioProcessor,
+                                 public juce::AudioProcessorValueTreeState::Listener
                             #if JucePlugin_Enable_ARA
                              , public juce::AudioProcessorARAExtension
                             #endif
@@ -56,8 +57,14 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    
+    void parameterChanged(const juce::String& parameterID, float newValue) override;
 
 private:
     //==============================================================================
+    juce::AudioProcessorValueTreeState vt;
+    
+    RNBO::CoreObject rnboObj;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RnboDriveAudioProcessor)
 };

@@ -10,6 +10,18 @@
 #include "PluginEditor.h"
 
 //==============================================================================
+juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+    
+    layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID {"drive", 1}, "Drive", 0.0f, 1.0f, 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID {"output", 1}, "Output", 0.0f, 1.0f, 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID {"mix", 1}, "Mix", 0.0f, 1.0f, 0.5f));
+
+    return layout;
+}
+
+//==============================================================================
 RnboDriveAudioProcessor::RnboDriveAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
@@ -19,9 +31,14 @@ RnboDriveAudioProcessor::RnboDriveAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
 #endif
+    vt (*this, nullptr, "Parameters", createParameterLayout())
 {
+//    for (RNBO::ParameterIndex i = 0; i < rnboObj.getNumParameters(); ++i)
+//    {
+//        RNBO::ParameterInfo info;
+//    }
 }
 
 RnboDriveAudioProcessor::~RnboDriveAudioProcessor()
@@ -166,7 +183,8 @@ bool RnboDriveAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* RnboDriveAudioProcessor::createEditor()
 {
-    return new RnboDriveAudioProcessorEditor (*this);
+    //return new RnboDriveAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor (*this);
 }
 
 //==============================================================================
@@ -183,6 +201,10 @@ void RnboDriveAudioProcessor::setStateInformation (const void* data, int sizeInB
     // whose contents will have been created by the getStateInformation() call.
 }
 
+void RnboDriveAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
+{
+    
+}
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
