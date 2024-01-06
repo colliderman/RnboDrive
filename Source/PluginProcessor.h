@@ -59,6 +59,8 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     void parameterChanged(const juce::String& parameterID, float newValue) override;
+    
+    std::unordered_map<juce::String, RNBO::ParameterIndex> apvtsParamIdToRnboParamIndex;
 
 private:
     //==============================================================================

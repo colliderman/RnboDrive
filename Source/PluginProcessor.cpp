@@ -14,9 +14,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
     
-    layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID {"drive", 1}, "Drive", 0.0f, 1.0f, 0.5f));
-    layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID {"output", 1}, "Output", 0.0f, 1.0f, 0.5f));
-    layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID {"mix", 1}, "Mix", 0.0f, 1.0f, 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID {"drive", 1}, "Drive", juce::NormalisableRange<float>(1.0f, 10.0f, 0.1f, 1.0f), 5.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID {"output", 1}, "Output", juce::NormalisableRange<float>(0.0f, 127.0f, 0.1f, 1.0f), 63.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID {"mix", 1}, "Mix", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0f, 1.0f), 0.5f));
 
     return layout;
 }
@@ -35,10 +35,30 @@ RnboDriveAudioProcessor::RnboDriveAudioProcessor()
 #endif
     vt (*this, nullptr, "Parameters", createParameterLayout())
 {
-//    for (RNBO::ParameterIndex i = 0; i < rnboObj.getNumParameters(); ++i)
-//    {
-//        RNBO::ParameterInfo info;
-//    }
+    for (RNBO::ParameterIndex i = 0; i < rnboObj.getNumParameters(); ++i)
+        {
+            RNBO::ParameterInfo info;
+            rnboObj.getParameterInfo (i, &info);
+
+            if (info.visible)
+            {
+                auto paramID = juce::String (rnboObj.getParameterId (i));
+
+                // Each apvts parameter id and range must be the same as the rnbo param object's.
+                // If you hit this assertion then you need to fix the incorrect id in ParamIDs.h.
+                jassert (vt.getParameter (paramID) != nullptr);
+
+                // If you hit these assertions then you need to fix the incorrect apvts
+                // parameter range in createParameterLayout().
+                jassert (info.min == vt.getParameterRange (paramID).start);
+                jassert (info.max == vt.getParameterRange (paramID).end);
+
+                apvtsParamIdToRnboParamIndex[paramID] = i;
+
+                vt.addParameterListener (paramID, this);
+                rnboObj.setParameterValue (i, vt.getRawParameterValue (paramID)->load());
+            }
+        }
 }
 
 RnboDriveAudioProcessor::~RnboDriveAudioProcessor()
@@ -203,7 +223,7 @@ void RnboDriveAudioProcessor::setStateInformation (const void* data, int sizeInB
 
 void RnboDriveAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
 {
-    
+    rnboObj.setParameterValue (apvtsParamIdToRnboParamIndex[parameterID], newValue);
 }
 //==============================================================================
 // This creates new instances of the plugin..
