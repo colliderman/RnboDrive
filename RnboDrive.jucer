@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="iGLKhz" name="RnboDrive" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
-              headerPath="/Users/cody/Development/RnboDrive/DriveRNBO/rnbo&#10;/Users/cody/Development/RnboDrive/DriveRNBO/rnbo/common">
+              headerPath="../../DriveRNBO/rnbo&#10;../../DriveRNBO/rnbo/common&#10;">
   <MAINGROUP id="sz6H6a" name="RnboDrive">
     <GROUP id="{2FFCEB06-397E-EBFB-E011-07493DA7A0D1}" name="Source">
       <FILE id="XKnpGo" name="RNBO.cpp" compile="1" resource="0" file="DriveRNBO/rnbo/RNBO.cpp"/>
